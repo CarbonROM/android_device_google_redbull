@@ -64,6 +64,23 @@ BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_BOOT_HEADER_VERSION := 3
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
 
+# Kernel
+BOARD_KERNEL_IMAGE_NAME := Image.lz4
+KERNEL_LD := LD=ld.lld
+TARGET_COMPILE_WITH_MSM_KERNEL := true
+TARGET_KERNEL_ADDITIONAL_FLAGS := DTC_EXT=$(shell pwd)/prebuilts/misc/linux-x86/dtc/dtc
+TARGET_KERNEL_ARCH := arm64
+TARGET_KERNEL_CLANG_COMPILE := true
+TARGET_KERNEL_CONFIG := redbull_defconfig
+TARGET_KERNEL_SOURCE := kernel/google/redbull
+TARGET_NEEDS_DTBOIMAGE := true
+
+# Kernel modules
+KERNEL_MODULES_LOAD_RAW := $(strip $(shell cat device/google/redbull/modules.load))
+KERNEL_MODULES_LOAD := $(foreach m,$(KERNEL_MODULES_LOAD_RAW),$(notdir $(m)))
+BOARD_VENDOR_KERNEL_MODULES_LOAD := $(filter-out $(BOOT_KERNEL_MODULES), $(KERNEL_MODULES_LOAD))
+BOARD_VENDOR_RAMDISK_KERNEL_MODULES_LOAD := $(filter $(BOOT_KERNEL_MODULES), $(KERNEL_MODULES_LOAD))
+
 BOARD_DTBOIMG_PARTITION_SIZE := 16777216
 
 TARGET_NO_KERNEL := false
@@ -521,114 +538,7 @@ TARGET_BOARD_NAME_DIR := device/google/$(TARGET_BOOTLOADER_BOARD_NAME)
 TARGET_BOARD_INFO_FILE := $(TARGET_BOARD_NAME_DIR)/board-info.txt
 TARGET_BOARD_COMMON_PATH := $(TARGET_BOARD_NAME_DIR)/sm7250
 
-# Common kernel file handling
-ifneq (,$(filter $(TARGET_DEVICE),bramble redfin))
-    TARGET_KERNEL_DIR := device/google/redbull-kernel
-else
-    TARGET_KERNEL_DIR := $(TARGET_BOARD_NAME_DIR:%/=%)-kernel
-endif
-
-# DTBO partition definitions
-ifneq (,$(filter userdebug eng, $(TARGET_BUILD_VARIANT)))
-    BOARD_PREBUILT_DTBOIMAGE := $(TARGET_KERNEL_DIR)/dtbo.img
-else
-    BOARD_PREBUILT_DTBOIMAGE := $(TARGET_KERNEL_DIR)/vintf/dtbo.img
-endif
 TARGET_FS_CONFIG_GEN := $(TARGET_BOARD_NAME_DIR)/config.fs
-
-# Kernel modules
-ifeq (,$(filter-out $(TARGET_BOOTLOADER_BOARD_NAME)_kasan, $(TARGET_PRODUCT)))
-    KERNEL_MODULE_DIR := $(TARGET_KERNEL_DIR)/kasan
-else ifeq (,$(filter-out $(TARGET_BOOTLOADER_BOARD_NAME)_kernel_debug_memory, $(TARGET_PRODUCT)))
-    KERNEL_MODULE_DIR := $(TARGET_KERNEL_DIR)/debug_memory
-else ifeq (,$(filter-out $(TARGET_BOOTLOADER_BOARD_NAME)_kernel_debug_memory_accounting, $(TARGET_PRODUCT)))
-    KERNEL_MODULE_DIR := $(TARGET_KERNEL_DIR)/debug_memory_accounting
-BOARD_KERNEL_CMDLINE += page_owner=on
-else ifeq (,$(filter-out $(TARGET_BOOTLOADER_BOARD_NAME)_kernel_debug_locking, $(TARGET_PRODUCT)))
-    KERNEL_MODULE_DIR := $(TARGET_KERNEL_DIR)/debug_locking
-else ifeq (,$(filter-out $(TARGET_BOOTLOADER_BOARD_NAME)_kernel_debug_hang, $(TARGET_PRODUCT)))
-    KERNEL_MODULE_DIR := $(TARGET_KERNEL_DIR)/debug_hang
-else ifeq (,$(filter-out $(TARGET_BOOTLOADER_BOARD_NAME)_kernel_debug_api, $(TARGET_PRODUCT)))
-    KERNEL_MODULE_DIR := $(TARGET_KERNEL_DIR)/debug_api
-else
-    ifneq (,$(filter userdebug eng, $(TARGET_BUILD_VARIANT)))
-        KERNEL_MODULE_DIR := $(TARGET_KERNEL_DIR)
-    else
-        KERNEL_MODULE_DIR := $(TARGET_KERNEL_DIR)/vintf
-    endif
-endif
-
-# Copy kheaders.ko to vendor/lib/modules for VTS test
-BOARD_VENDOR_KERNEL_MODULES += $(KERNEL_MODULE_DIR)/kheaders.ko
-
-KERNEL_MODULES := $(wildcard $(KERNEL_MODULE_DIR)/*.ko)
-KERNEL_MODULES_LOAD := $(strip $(shell cat $(firstword $(wildcard \
-        $(KERNEL_MODULE_DIR)/modules.load \
-        $(if $(filter userdebug eng,$(TARGET_BUILD_VARIANT)), \
-            $(TARGET_KERNEL_DIR)/vintf/modules.load,) \
-        $(TARGET_KERNEL_DIR)/modules.load))))
-
-# DTB
-BOARD_PREBUILT_DTBIMAGE_DIR := $(KERNEL_MODULE_DIR)
-
-ifeq (,$(BOOT_KERNEL_MODULES))
-    BOARD_VENDOR_RAMDISK_KERNEL_MODULES := $(KERNEL_MODULES)
-    BOARD_VENDOR_RAMDISK_KERNEL_MODULES_LOAD := $(KERNEL_MODULES_LOAD)
-else
-    #
-    # BEWARE: This is a tuning exercise to get right, splitting between
-    # boot essential drivers, fastboot/recovery drivers, and the remainder
-    # used by Android, but not the blocklist (device specific drivers not
-    # common between platforms or drivers that must not be autoloaded) which
-    # are loaded later.
-    #
-    # BOOT_KERNEL_MODULES     - Modules loaded in first stage init.
-    # RECOVERY_KERNEL_MODULES - Additional modules loaded in recovery/fastbootd
-    #                           or in second stage init.
-    # file: modules.blocklist - Not autoloaded. loaded on demand product or HAL.
-    # Remainder               - In second stage init, but after recovery set;
-    #                           minus the blocklist.
-    #
-    BOOT_KERNEL_MODULES_FILTER := $(foreach m,$(BOOT_KERNEL_MODULES),%/$(m))
-    ifneq (,$(RECOVERY_KERNEL_MODULES))
-        RECOVERY_KERNEL_MODULES_FILTER := \
-            $(foreach m,$(RECOVERY_KERNEL_MODULES),%/$(m))
-    endif
-    BOARD_VENDOR_RAMDISK_KERNEL_MODULES += \
-            $(filter $(BOOT_KERNEL_MODULES_FILTER) \
-                     $(RECOVERY_KERNEL_MODULES_FILTER),$(KERNEL_MODULES))
-
-    # ALL modules land in /vendor/lib/modules so they could be rmmod/insmod'd,
-    # and modules.list actually limits us to the ones we intend to load.
-    BOARD_VENDOR_KERNEL_MODULES := $(KERNEL_MODULES)
-    # To limit /vendor/lib/modules to just the ones loaded, use:
-    #
-    #   BOARD_VENDOR_KERNEL_MODULES := $(filter-out \
-    #       $(BOOT_KERNEL_MODULES_FILTER),$(KERNEL_MODULES))
-
-    # Group set of /vendor/lib/modules loading order to recovery modules first,
-    # then remainder, subtracting both recovery and boot modules.
-    BOARD_VENDOR_KERNEL_MODULES_LOAD := \
-            $(filter-out $(BOOT_KERNEL_MODULES_FILTER), \
-            $(filter $(RECOVERY_KERNEL_MODULES_FILTER),$(KERNEL_MODULES_LOAD)))
-    BOARD_VENDOR_KERNEL_MODULES_LOAD += \
-            $(filter-out $(BOOT_KERNEL_MODULES_FILTER) \
-                 $(RECOVERY_KERNEL_MODULES_FILTER),$(KERNEL_MODULES_LOAD))
-
-    # NB: Load order governed by modules.load and not by $(BOOT_KERNEL_MODULES)
-    BOARD_VENDOR_RAMDISK_KERNEL_MODULES_LOAD := \
-            $(filter $(BOOT_KERNEL_MODULES_FILTER),$(KERNEL_MODULES_LOAD))
-
-    ifneq (,$(RECOVERY_KERNEL_MODULES_FILTER))
-        # Group set of /vendor/lib/modules loading order to boot modules first,
-        # then remainder of recovery modules.
-        BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD := \
-            $(filter $(BOOT_KERNEL_MODULES_FILTER),$(KERNEL_MODULES_LOAD))
-        BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD += \
-            $(filter-out $(BOOT_KERNEL_MODULES_FILTER), \
-            $(filter $(RECOVERY_KERNEL_MODULES_FILTER),$(KERNEL_MODULES_LOAD)))
-    endif
-endif
 
 BOARD_BUILD_VENDOR_RAMDISK_IMAGE := true
 
