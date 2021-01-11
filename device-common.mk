@@ -63,6 +63,10 @@ PRODUCT_SOONG_NAMESPACES += \
       vendor/qcom/sm7250/proprietary/qcril-hal \
       vendor/qcom/sm7250/proprietary/data
 
+# display commonsys interfaces
+PRODUCT_SOONG_NAMESPACES += \
+    vendor/qcom/opensource/commonsys-intf/display \
+
 PRODUCT_PROPERTY_OVERRIDES += \
     keyguard.no_require_sim=true
 
