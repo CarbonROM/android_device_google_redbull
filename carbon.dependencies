@@ -1,0 +1,8 @@
+[
+  {
+    "repository": "platform/prebuilts/gas/linux-x86",
+    "target_path": "prebuilts/gas/linux-x86",
+    "remote": "aosp",
+    "revision": "master-kernel-build-2021"
+  }
+]

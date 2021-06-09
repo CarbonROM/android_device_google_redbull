@@ -75,6 +75,9 @@ TARGET_KERNEL_CONFIG := redbull_defconfig
 TARGET_KERNEL_SOURCE := kernel/google/redbull
 TARGET_NEEDS_DTBOIMAGE := true
 KERNEL_LD := LD=ld.lld
+# Use Gnu AS until we can switch to LLVM_IAS=1
+KERNEL_TOOLCHAIN := $(shell pwd)/prebuilts/gas/$(HOST_PREBUILT_TAG)
+TARGET_KERNEL_CROSS_COMPILE_PREFIX := aarch64-linux-gnu-
 
 # Kernel modules
 BOOT_KERNEL_MODULES += \
