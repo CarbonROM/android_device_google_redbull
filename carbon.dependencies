@@ -1,0 +1,7 @@
+[
+  {
+    "repository": "platform/prebuilts/gas/linux-x86",
+    "target_path": "prebuilts/gas/linux-x86",
+    "remote": "aosp"
+  }
+]
