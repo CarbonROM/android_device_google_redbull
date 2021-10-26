@@ -17,6 +17,23 @@
       "message": "maybe related? https://review.lineageos.org/c/LineageOS/android_vendor_lineage/+/318116",
       "revId": "61c4b2a24dd710c74f2aa76eaeb51d3e512fdcae",
       "serverId": "4c0b52a2-b090-4331-a190-b288d812d081"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d7a98ca_e9663bed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 341
+      },
+      "writtenOn": "2021-10-26T10:38:58Z",
+      "side": 1,
+      "message": "nope, not related",
+      "revId": "61c4b2a24dd710c74f2aa76eaeb51d3e512fdcae",
+      "serverId": "4c0b52a2-b090-4331-a190-b288d812d081"
     }
   ]
 }
