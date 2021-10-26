@@ -1,4 +1,22 @@
 {
   "pushCert": "certificate version 0.1\npusher 822AA3E6EE28340C 1635235127 -0500\npushee ssh://review.carbonrom.org:29418/CarbonROM/android_device_google_redbull\nnonce 1635235125-41DEACFEE675F28CDC6C632F29910046F782027E\n\n0000000000000000000000000000000000000000 31d9ad874fef89556af66245b7296d12da2f47c8 refs/for/cr-10.0%topic\u003dpixel5a+co\n-----BEGIN PGP SIGNATURE-----\n\niQIzBAABCgAdFiEEvw/uUiV8PGgD+twvgiqj5u4oNAwFAmF3tTcACgkQgiqj5u4o\nNAzuSA//UDa0O//UeEm1/kq3zyRa5aMqXxFt1iqS2fDpwvz6844WkvJ4scXvMwUy\n+uSXKz/D7osL2L3dHyG/e9wCK0Uce5rSeyXQyowGS//VSNbxMn04chSwIxu3fkPp\nknyTEftoUJhUAQYDKQ0jKXUcMQtwKGodiNt31u6jbTGkoAygn8YJttmfbMkjh+uf\n8vJhBk8qVT0wdzeEC3ZkK2yHpWhh9P5aaGTKfdMjqU8JKWNpr3IC+iRgjeuOwq8g\noXRde/3QKIRtshexPGGqbWIch5uG/e+8OcCD3CbNq+OoTBfAMdaDM73qQfhf9AYS\nNrA7t32nz5eobxRFG7V/pOVu331RInt7C1PD/7+kQzKBL+xWy6Ef+e1TiCqjI8MT\nmMyn4Xw5T6VNg/aE3qow6en1fgiyVRI3cVCJZtTC2w6szTPhKBXlyG1PABYU3GPE\nCq3io/T9EVxDO3RVswKEbfk+yHAa0aTQK7NJZO7D24ZdcKU6l2Ptmbu0S9hxk9x6\nIw33HocrtPTZA/I4EhCNDlxbyuW1+Z6YnomazF/q8KlLm8i4sGKJk8XHe4IzTURB\n3CYaqPW6t/aDkBkrjQvTp1KY//lhbpb0J61nThMzq/Nhn5WhWfNHPxmsyo3HXHHk\nbR2iJayMHO+kMBVsTtgqlf8uyQhMTctDGY+jZycn+D/BQL9rpEE\u003d\n\u003dcrew\n-----END PGP SIGNATURE-----\n",
-  "comments": []
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22d4d3bb_1a6d32e2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 341
+      },
+      "writtenOn": "2021-10-26T10:31:32Z",
+      "side": 1,
+      "message": "maybe related? https://review.lineageos.org/c/LineageOS/android_vendor_lineage/+/318116",
+      "revId": "61c4b2a24dd710c74f2aa76eaeb51d3e512fdcae",
+      "serverId": "4c0b52a2-b090-4331-a190-b288d812d081"
+    }
+  ]
 }
