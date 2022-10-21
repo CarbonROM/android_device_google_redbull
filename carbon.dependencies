@@ -1,0 +1,13 @@
+[
+  {
+    "repository": "CarbonROM/android_kernel_google_redbull",
+    "target_path": "kernel/google/redbull",
+    "remote": "carbon"
+  },
+  {
+    "repository": "TheMuppets/proprietary_vendor_google_barbet",
+    "target_path": "vendor/google/barbet",
+    "remote": "github",
+    "revision": "lineage-20"
+  }
+]
